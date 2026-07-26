@@ -2,8 +2,7 @@
 
 #include <vector>
 #include "qp_problem.hpp"
-#include "sym_sparse_matrix.hpp"
-
+#include "LinearAlgebra/sym_sparse_matrix.hpp"
 namespace ippmm{
 
     class KKTSystem{

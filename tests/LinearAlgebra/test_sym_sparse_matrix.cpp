@@ -1,6 +1,6 @@
 #include "doctest.h"
-#include "sym_sparse_matrix.hpp"
-#include "sparse_matrix.hpp"
+#include "LinearAlgebra/sym_sparse_matrix.hpp"
+#include "LinearAlgebra/sparse_matrix.hpp"
 #include <stdexcept>
 
 using namespace ippmm;

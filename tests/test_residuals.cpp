@@ -2,7 +2,7 @@
 #include "qp_problem.hpp"
 #include "residuals.hpp"
 #include <stdexcept>
-#include "sym_sparse_matrix.hpp"
+#include "LinearAlgebra/sym_sparse_matrix.hpp"
 #include <limits>
 static constexpr double INF = std::numeric_limits<double>::infinity();
 

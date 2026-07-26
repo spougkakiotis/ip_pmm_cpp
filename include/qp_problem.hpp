@@ -2,8 +2,8 @@
 
 #include <vector>
 #include <limits>
-#include "sparse_matrix.hpp"
-#include "sym_sparse_matrix.hpp"
+#include "LinearAlgebra/sparse_matrix.hpp"
+#include "LinearAlgebra/sym_sparse_matrix.hpp"
 
 namespace ippmm{
 

@@ -1,5 +1,5 @@
 #include "doctest.h"
-#include "vector_ops.hpp"
+#include "LinearAlgebra/vector_ops.hpp"
 #include <limits>
 
 using namespace ippmm;

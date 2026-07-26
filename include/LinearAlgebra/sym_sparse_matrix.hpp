@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "sparse_matrix.hpp"  // composes a SparseMatrix; reuses Int, Scalar
+#include "LinearAlgebra/sparse_matrix.hpp"  // composes a SparseMatrix; reuses Int, Scalar
 
 namespace ippmm {
 

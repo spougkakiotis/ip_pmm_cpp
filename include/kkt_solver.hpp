@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "sparse_matrix.hpp"
+#include "LinearAlgebra/sparse_matrix.hpp"
 
 namespace ippmm{
 

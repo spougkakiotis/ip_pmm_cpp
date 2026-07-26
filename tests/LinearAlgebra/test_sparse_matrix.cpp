@@ -1,5 +1,5 @@
 #include "doctest.h"
-#include "sparse_matrix.hpp"
+#include "LinearAlgebra/sparse_matrix.hpp"
 
 TEST_CASE("CSC matrix-vector product") {
     // A = [4 0 1; 0 5 0; 2 0 3]

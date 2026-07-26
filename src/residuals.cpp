@@ -1,7 +1,7 @@
 #include "residuals.hpp"
 
 #include <cassert>
-#include "vector_ops.hpp"
+#include "LinearAlgebra/vector_ops.hpp"
 
 namespace ippmm{
 

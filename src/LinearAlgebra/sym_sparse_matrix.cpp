@@ -1,5 +1,4 @@
-#include "sym_sparse_matrix.hpp"
-
+#include "LinearAlgebra/sym_sparse_matrix.hpp"
 #include <cassert>
 #include <stdexcept>
 #include <utility>

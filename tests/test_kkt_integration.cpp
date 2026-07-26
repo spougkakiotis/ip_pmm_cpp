@@ -1,6 +1,7 @@
 #include "doctest.h"
 #include <stdexcept>
-
+#include <limits>
+static constexpr double INF = std::numeric_limits<double>::infinity();
 #include "qp_problem.hpp"
 #include "kkt_system.hpp"
 #include "kkt_solver.hpp"
@@ -13,7 +14,8 @@ TEST_CASE("End-to-end: assemble KKT, factor, solve") {
     SparseMatrix    A(1, 2, {0, 1, 2}, {0, 0}, {3.0, 4.0});
     QPProblem qp{ std::vector<double>{0.0, 0.0}, A, Q,
                   std::vector<double>{0.0},
-                  std::vector<char>{Bounded, Bounded} };
+                  std::vector<double>{0.0, 0.0},      // lb
+                  std::vector<double>{INF, INF} };    // ub 
 
     // Build the system (pattern once) and a solver over that fixed pattern.
     KKTSystem system(qp);
@@ -49,7 +51,8 @@ TEST_CASE("End-to-end: re-assemble and re-solve on the same pattern") {
     SparseMatrix    A(1, 2, {0, 1, 2}, {0, 0}, {3.0, 4.0});
     QPProblem qp{ std::vector<double>{0.0, 0.0}, A, Q,
                   std::vector<double>{0.0},
-                  std::vector<char>{Bounded, Bounded} };
+                  std::vector<double>{0.0, 0.0},      // lb
+                  std::vector<double>{INF, INF} };    // ub
 
     KKTSystem system(qp);
     KKTSolver solver(system.size(), system.col_ptr(), system.row_idx());

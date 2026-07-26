@@ -13,7 +13,7 @@ SRC_DIR   := src
 BUILD_DIR := build
 TARGET    := $(BUILD_DIR)/ip_pmm
 
-SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 
@@ -29,6 +29,7 @@ $(TARGET): $(OBJS) $(QDLDL_OBJ) | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
 # QDLDL is C, so compile it with the C compiler (guarantees C linkage,
@@ -52,7 +53,7 @@ TEST_TARGET   := $(BUILD_DIR)/run_tests
 
 # Reuse the solver's object files, minus main.o (doctest brings its own main).
 LIB_OBJS  := $(filter-out $(BUILD_DIR)/main.o,$(OBJS))
-TEST_SRCS := $(wildcard $(TEST_DIR)/*.cpp)
+TEST_SRCS := $(shell find $(TEST_DIR) -name '*.cpp')
 TEST_OBJS := $(patsubst $(TEST_DIR)/%.cpp,$(BUILD_DIR)/$(TEST_DIR)/%.o,$(TEST_SRCS))
 
 $(BUILD_DIR)/$(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp | $(BUILD_DIR)

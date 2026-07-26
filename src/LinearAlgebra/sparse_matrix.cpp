@@ -1,4 +1,4 @@
-#include <sparse_matrix.hpp>
+#include "LinearAlgebra/sparse_matrix.hpp"
 
 #include <cassert>
 #include <utility>
