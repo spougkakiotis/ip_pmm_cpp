@@ -1,5 +1,5 @@
 #include "doctest.h"
-#include "kkt_system.hpp"
+#include "KKT/kkt_system.hpp"
 #include <limits>
 static constexpr double INF = std::numeric_limits<double>::infinity();
 using namespace ippmm;

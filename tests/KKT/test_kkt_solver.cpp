@@ -1,5 +1,5 @@
 #include "doctest.h"
-#include "kkt_solver.hpp"
+#include "KKT/kkt_solver.hpp"
 
 using namespace ippmm;
 

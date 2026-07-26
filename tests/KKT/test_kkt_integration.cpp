@@ -3,8 +3,8 @@
 #include <limits>
 static constexpr double INF = std::numeric_limits<double>::infinity();
 #include "qp_problem.hpp"
-#include "kkt_system.hpp"
-#include "kkt_solver.hpp"
+#include "KKT/kkt_system.hpp"
+#include "KKT/kkt_solver.hpp"
 
 using namespace ippmm;
 
