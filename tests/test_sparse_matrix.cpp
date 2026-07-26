@@ -36,3 +36,24 @@ TEST_CASE("CSC transpose matrix-vector product"){
 
 }
 
+TEST_CASE("sparse transpose") {
+    // A = [1 0 2 ; 0 3 1]  (2x3), CSC:
+    ippmm::SparseMatrix A(2, 3, {0, 1, 2, 4}, {0, 1, 0, 1}, {1.0, 3.0, 2.0, 1.0});
+    ippmm::SparseMatrix At = A.transpose();
+
+    // Aᵀ is [1 0 ; 0 3 ; 2 1]  (3x2)
+    CHECK(At.rows() == 3);
+    CHECK(At.cols() == 2);
+    CHECK(At.nnz()  == 4);
+
+    // Differential check: Aᵀx via the explicit transpose must equal
+    // A.multiply_tr(x) (which computes Aᵀx without forming Aᵀ).
+    for (const std::vector<double>& x : { std::vector<double>{5.0, 7.0},
+                                          std::vector<double>{-1.0, 2.0} }) {
+        const std::vector<double> viaT  = At.multiply(x);
+        const std::vector<double> viaTr = A.multiply_tr(x);
+        REQUIRE(viaT.size() == viaTr.size());
+        for (std::size_t i = 0; i < viaT.size(); ++i)
+            CHECK(viaT[i] == doctest::Approx(viaTr[i]));
+    }
+}

@@ -49,7 +49,32 @@ namespace ippmm{
         return y;
     }
 
-    
+    SparseMatrix SparseMatrix::transpose() const {
+        // Aᵀ is (cols_ x rows_); its columns correspond to A's rows.
+        std::vector<Int>    tp(rows_ + 1, 0);      // Aᵀ col_ptr, size rows_+1
+        std::vector<Int>    ti(values_.size());    // Aᵀ row_idx
+        std::vector<Scalar> tx(values_.size());    // Aᵀ values
+
+        // Count nonzeros per row of A (= per column of Aᵀ).
+        for (Int k = 0; k < static_cast<Int>(row_idx_.size()); ++k) {
+            tp[row_idx_[k] + 1]++;
+        }
+        // Prefix-sum: turn counts into column start positions.
+        for (Int r = 0; r < rows_; ++r) {
+            tp[r + 1] += tp[r];
+        }
+        // Scatter each entry of A into its transposed slot.
+        std::vector<Int> next(tp.begin(), tp.begin() + rows_);  // running cursor per Aᵀ column
+        for (Int j = 0; j < cols_; ++j) {
+            for (Int k = col_ptr_[j]; k < col_ptr_[j + 1]; ++k) {
+                const Int r    = row_idx_[k];
+                const Int dest = next[r]++;
+                ti[dest] = j;             // A's column j becomes Aᵀ's row j
+                tx[dest] = values_[k];
+            }
+        }
+        return SparseMatrix(cols_, rows_, std::move(tp), std::move(ti), std::move(tx));
+    }
 
 
 }

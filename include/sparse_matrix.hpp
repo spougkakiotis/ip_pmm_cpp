@@ -23,6 +23,9 @@ namespace ippmm{
             std::vector<Scalar> multiply(const std::vector<Scalar>& x) const;
             std::vector<Scalar> multiply_tr(const std::vector<Scalar>& x) const;
 
+            // Returns the explicit transpose Aᵀ as a new SparseMatrix (cols x rows, CSC).
+            SparseMatrix transpose() const;
+
             // Read-only access to the raw CSC arrays 
             const std::vector<Int>&    col_ptr() const {return col_ptr_;}
             const std::vector<Int>&    row_idx() const {return row_idx_;}
