@@ -1,6 +1,6 @@
 #include "doctest.h"
 #include "qp_problem.hpp"
-#include "residuals.hpp"
+#include "IPM_Control/residuals.hpp"
 #include <stdexcept>
 #include "LinearAlgebra/sym_sparse_matrix.hpp"
 #include <limits>
