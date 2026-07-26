@@ -3,6 +3,8 @@
 #include "residuals.hpp"
 #include <stdexcept>
 #include "sym_sparse_matrix.hpp"
+#include <limits>
+static constexpr double INF = std::numeric_limits<double>::infinity();
 
 using namespace ippmm;
 
@@ -14,16 +16,19 @@ static QPProblem make_test_qp() {
     SymSparseMatrix Q(3, {0, 1, 2, 4}, {0, 1, 0, 2}, {2.0, 4.0, 1.0, 3.0});
     std::vector<double> c{1.0, 1.0, 1.0};
     std::vector<double> b{5.0, 4.0};
-    std::vector<char>   is_free{Bounded, Bounded, Free};
-    return QPProblem{c, A, Q, b, is_free};
+    std::vector<double> lb{0.0, 0.0, -INF};   // x0,x1 bounded below; x2 free
+    std::vector<double> ub{INF, INF,  INF};
+    return QPProblem{c, A, Q, b, lb, ub};   
 }
 
 TEST_CASE("QPProblem accessors and validation") {
     QPProblem qp = make_test_qp();
     CHECK(qp.num_vars() == 3);
     CHECK(qp.num_constraints() == 2);
-    CHECK(qp.variable_is_free(2) == true);
-    CHECK(qp.variable_is_free(0) == false);
+    CHECK(qp.is_free(2) == true);        // x2: lb=-inf, ub=+inf
+    CHECK(qp.is_free(0) == false);       // x0: lb=0
+    CHECK(qp.has_lower(0) == true);
+    CHECK(qp.has_upper(0) == false);     // ub=+inf
     CHECK_NOTHROW(qp.validate());
 }
 
@@ -42,14 +47,39 @@ TEST_CASE("primal residual r_p = A x - b") {
     CHECK(rp[1] == doctest::Approx(5.0));
 }
 
-TEST_CASE("dual residual r_d = c + Q x - Aᵀ y - z") {
+TEST_CASE("dual residual r_d = c + Q x - Aᵀ y - z_l + z_u") {
     QPProblem qp = make_test_qp();
-    // Q x = [5,8,10];  c = [1,1,1];  Aᵀy = [1,6,4];  z = [1,1,1]
-    // r_d = [1+5-1-1, 1+8-6-1, 1+10-4-1] = [4, 2, 6]
+    // Q x = [5,8,10];  c = [1,1,1];  Aᵀy = [1,6,4]  (y = [1,2])
+    // z_l = [1,1,1],  z_u = [0,2,0]
+    // r_d = c + Qx - Aᵀy - z_l + z_u
+    //     = [1+5-1-1+0, 1+8-6-1+2, 1+10-4-1+0] = [4, 4, 6]
     const std::vector<double> rd =
-        dual_residual(qp, {1.0, 2.0, 3.0}, {1.0, 2.0}, {1.0, 1.0, 1.0});
+        dual_residual(qp, {1.0, 2.0, 3.0}, {1.0, 2.0},
+                      /*z_l=*/{1.0, 1.0, 1.0}, /*z_u=*/{0.0, 2.0, 0.0});
     REQUIRE(rd.size() == 3);
     CHECK(rd[0] == doctest::Approx(4.0));
-    CHECK(rd[1] == doctest::Approx(2.0));
+    CHECK(rd[1] == doctest::Approx(4.0));   // the +z_u=2 shifts this from 2 to 4
     CHECK(rd[2] == doctest::Approx(6.0));
+}
+
+TEST_CASE("validate rejects crossed bounds") {
+    QPProblem qp = make_test_qp();
+    qp.lb[0] = 5.0;
+    qp.ub[0] = 2.0;                        // lb > ub
+    CHECK_THROWS_AS(qp.validate(), std::invalid_argument);
+}
+
+TEST_CASE("bound predicates classify all four regimes") {
+    // Only lb/ub matter here; A and Q are minimal but valid.
+    SparseMatrix    A(1, 4, {0, 1, 1, 1, 1}, {0}, {1.0});   // 1×4, one nonzero
+    SymSparseMatrix Q(4, {0, 1, 1, 1, 1}, {0}, {1.0});       // 4×4, one diagonal nonzero
+    std::vector<double> c(4, 0.0), b{0.0};
+    std::vector<double> lb{0.0,  0.0, -INF, -INF};
+    std::vector<double> ub{1.0,  INF,  1.0,  INF};
+    QPProblem qp{c, A, Q, b, lb, ub};
+
+    CHECK((qp.has_lower(0) && qp.has_upper(0)));   // x0 boxed
+    CHECK((qp.has_lower(1) && !qp.has_upper(1)));  // x1 lower-only
+    CHECK((!qp.has_lower(2) && qp.has_upper(2)));  // x2 upper-only
+    CHECK(qp.is_free(3));                          // x3 free
 }

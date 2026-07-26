@@ -1,6 +1,7 @@
 #include "doctest.h"
 #include "kkt_system.hpp"
-
+#include <limits>
+static constexpr double INF = std::numeric_limits<double>::infinity();
 using namespace ippmm;
 
 // n=2, m=1 hand example.
@@ -10,8 +11,9 @@ static QPProblem make_kkt_qp() {
     SparseMatrix    A(1, 2, {0, 1, 2}, {0, 0}, {3.0, 4.0});      // [3 4]
     std::vector<double> c{0.0, 0.0};
     std::vector<double> b{0.0};
-    std::vector<char>   is_free{Bounded, Bounded};
-    return QPProblem{c, A, Q, b, is_free};
+    std::vector<double> lb{0.0, 0.0};      // both bounded (values irrelevant to KKT structure)
+    std::vector<double> ub{INF, INF};
+    return QPProblem{c, A, Q, b, lb, ub};    
 }
 
 TEST_CASE("KKTSystem builds the correct fixed pattern") {
@@ -60,15 +62,14 @@ static QPProblem make_kkt_qp_free_x1() {
     SparseMatrix    A(1, 2, {0, 1, 2}, {0, 0}, {3.0, 4.0});
     std::vector<double> c{0.0, 0.0};
     std::vector<double> b{0.0};
-    std::vector<char>   is_free{Bounded, Free};   // x1 free
-    return QPProblem{c, A, Q, b, is_free};
+    std::vector<double> lb{0.0, -INF};     // x0 bounded, x1 free
+    std::vector<double> ub{INF,  INF};
+    return QPProblem{c, A, Q, b, lb, ub};
 }
 
 TEST_CASE("KKTSystem pattern is unaffected by free variables") {
-    // Invariant: free/bounded lives in the caller's Θ⁻¹, NOT in the pattern.
-    // A free variable must still get its reserved diagonal (ρ lands there).
-    KKTSystem K(make_kkt_qp_free_x1());  // note: temporary QPProblem lifetime — see comment below
-
+    QPProblem qp = make_kkt_qp_free_x1();
+    KKTSystem K(qp);
     CHECK(K.size() == 3);
     CHECK(K.col_ptr() == std::vector<int>{0, 1, 3, 6});
     CHECK(K.row_idx() == std::vector<int>{0, 0, 1, 0, 1, 2});

@@ -1,30 +1,31 @@
 #pragma once
 
 #include <vector>
+#include <limits>
 #include "sparse_matrix.hpp"
 #include "sym_sparse_matrix.hpp"
 
 namespace ippmm{
 
-    // Per-variable kind. Unscoped + char-backed on purpose: these get stored as
-    // raw bytes and used as initializers a lot, so we want the ergonomic implicit conversion.
-    enum VarKind : char {Bounded = 0, Free = 1};
-
-    // Convex QP:  min cᵀx + ½ xᵀQx   s.t.  Ax = b,  x_i ≥ 0 (Bounded) / free (Free)
-    // Plain data aggregate — mirrors your MATLAB IP_PMM(c, A, Q, b, free_variables).
+    // Convex QP:  min cᵀx + ½ xᵀQx   s.t.  Ax = b,  lb ≤ x ≤ ub
+    // Bounds use ±infinity() sentinels: lb[i] = -inf means "no lower bound",
+    // ub[i] = +inf means "no upper bound". A free variable has both infinite.
     struct QPProblem {
-        std::vector<Scalar> c;        // objective linear term, length n
-        SparseMatrix        A;        // constraints, m × n
-        SymSparseMatrix        Q;        // Hessian (symmetric PSD), n × n
-        std::vector<Scalar> b;        // rhs, length m
-        std::vector<char>   is_free;  // length n; Free / Bounded per variable
+        std::vector<Scalar> c;   // objective linear term, length n
+        SparseMatrix        A;   // constraints, m × n
+        SymSparseMatrix     Q;   // Hessian: symmetric PSD, upper-triangular, n × n
+        std::vector<Scalar> b;   // rhs, length m
+        std::vector<Scalar> lb;  // lower bounds, length n (-inf = unbounded below)
+        std::vector<Scalar> ub;  // upper bounds, length n (+inf = unbounded above)
 
         Int num_vars()        const { return A.cols(); }  // n
         Int num_constraints() const { return A.rows(); }  // m
 
-        bool variable_is_free(Int i) const { return is_free[i] != Bounded; }
+        // Derived bound predicates — no separate stored mask (single source of truth).
+        bool has_lower(Int i) const { return lb[i] > -std::numeric_limits<Scalar>::infinity(); }
+        bool has_upper(Int i) const { return ub[i] <  std::numeric_limits<Scalar>::infinity(); }
+        bool is_free(Int i)   const { return !has_lower(i) && !has_upper(i); }
 
-        void validate() const;  // throws if the pieces don't fit together
+        void validate() const;
     };
-
 }
