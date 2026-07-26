@@ -8,7 +8,8 @@ namespace ippmm{
              : n_(qp.num_vars()),
                m_(qp.num_constraints()),
                At_(qp.A.transpose()),
-               x_diag_slot_(qp.num_vars(),-1){
+               x_diag_slot_(qp.num_vars(),-1),
+               qp_(&qp){
 
         const Int total = n_ + m_;
         col_ptr_.assign(total+1,0);
@@ -74,5 +75,43 @@ namespace ippmm{
         for (Int c = 0; c < total; ++c) assert(next[c] == col_ptr_[c + 1]);
     }
             
+    SymSparseMatrix KKTSystem::assemble(const std::vector<Scalar>& theta_inv,
+                                        Scalar rho, Scalar delta) const {
+        assert(static_cast<Int>(theta_inv.size()) == n_);
 
+        const Int total = n_ + m_;
+        std::vector<Scalar> vals(col_ptr_[total], 0.0);
+
+        const auto& Qp  = qp_->Q.col_ptr();
+        const auto& Qi  = qp_->Q.row_idx();
+        const auto& Qx  = qp_->Q.values();
+        const auto& Atp = At_.col_ptr();
+        const auto& Atx = At_.values();
+
+        std::vector<Int> next(col_ptr_.begin(), col_ptr_.begin() + total);
+
+        // x-columns: -(Q entries), with -(θ⁻¹_j + ρ) folded onto the diagonal.
+        for (Int j = 0; j < n_; ++j) {
+            bool diag_written = false;
+            for (Int k = Qp[j]; k < Qp[j + 1]; ++k) {
+                const Int r = Qi[k];
+                Scalar v = -Qx[k];                                  // -Q
+                if (r == j) { v -= (theta_inv[j] + rho); diag_written = true; }
+                vals[next[j]++] = v;
+            }
+            if (!diag_written) {                                     // Q lacked diagonal
+                vals[next[j]++] = -(theta_inv[j] + rho);
+            }
+        }
+        // y-columns: Aᵀ column values, then δ on the diagonal.
+        for (Int k = 0; k < m_; ++k) {
+            const Int col = n_ + k;
+            for (Int t = Atp[k]; t < Atp[k + 1]; ++t) {
+                vals[next[col]++] = Atx[t];
+            }
+            vals[next[col]++] = delta;
+        }
+
+        return SymSparseMatrix(total, col_ptr_, row_idx_, std::move(vals));
+    }
 }

@@ -16,7 +16,12 @@ namespace ippmm{
             const std::vector<Int>& col_ptr() const{return col_ptr_;}
             const std::vector<Int>& row_idx() const{return row_idx_;}
 
-            //To do assemble()
+            // Fill values on the fixed pattern and return K as a SymSparseMatrix.
+            //   theta_inv : length-n diagonal Θ⁻¹ (already 0 at free indices)
+            //   rho       : primal regularization (added to every x-diagonal)
+            //   delta     : dual regularization (the y-block diagonal)
+            SymSparseMatrix assemble(const std::vector<Scalar>& theta_inv,
+                                     Scalar rho, Scalar delta) const;
 
         private:
             Int n_ = 0; 
@@ -31,6 +36,8 @@ namespace ippmm{
             //Filled alongside the sparsity pattern
             SparseMatrix At_;
             std::vector<Int> x_diag_slot_;  
+            const QPProblem* qp_ = nullptr;   // non-owning; the QPProblem must outlive this KKTSystem
+
     };
 
 }
