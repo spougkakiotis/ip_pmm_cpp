@@ -14,7 +14,7 @@ namespace ippmm{
             throw std::invalid_argument("QPProblem: b length != m");
         if (static_cast<Int>(is_free.size()) != n)
             throw std::invalid_argument("QPProblem: is_free length != n");
-        if (Q.rows() != n || Q.cols() != n)
+        if (Q.size() != n)
             throw std::invalid_argument("QPProblem: Q must be n x n");
     }
 }

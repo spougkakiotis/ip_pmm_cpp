@@ -35,3 +35,4 @@ TEST_CASE("CSC transpose matrix-vector product"){
     CHECK(y[2] == doctest::Approx(10.0));
 
 }
+

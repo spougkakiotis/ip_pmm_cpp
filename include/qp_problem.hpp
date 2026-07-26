@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "sparse_matrix.hpp"
+#include "sym_sparse_matrix.hpp"
 
 namespace ippmm{
 
@@ -14,7 +15,7 @@ namespace ippmm{
     struct QPProblem {
         std::vector<Scalar> c;        // objective linear term, length n
         SparseMatrix        A;        // constraints, m × n
-        SparseMatrix        Q;        // Hessian (symmetric PSD), n × n
+        SymSparseMatrix        Q;        // Hessian (symmetric PSD), n × n
         std::vector<Scalar> b;        // rhs, length m
         std::vector<char>   is_free;  // length n; Free / Bounded per variable
 

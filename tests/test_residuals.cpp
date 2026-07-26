@@ -2,14 +2,16 @@
 #include "qp_problem.hpp"
 #include "residuals.hpp"
 #include <stdexcept>
+#include "sym_sparse_matrix.hpp"
 
 using namespace ippmm;
 
 static QPProblem make_test_qp() {
     // A = [1 0 2 ; 0 3 1]                        (2 × 3)
     SparseMatrix A(2, 3, {0, 1, 2, 4}, {0, 1, 0, 1}, {1.0, 3.0, 2.0, 1.0});
-    // Q = [2 0 1 ; 0 4 0 ; 1 0 3]  symmetric PSD (3 × 3)
-    SparseMatrix Q(3, 3, {0, 2, 3, 5}, {0, 2, 1, 0, 2}, {2.0, 1.0, 4.0, 1.0, 3.0});
+    // Q = [2 0 1; 0 4 0; 1 0 3], upper-triangular:
+    //   col0:(0,2)  col1:(1,4)  col2:(0,1),(2,3)
+    SymSparseMatrix Q(3, {0, 1, 2, 4}, {0, 1, 0, 2}, {2.0, 4.0, 1.0, 3.0});
     std::vector<double> c{1.0, 1.0, 1.0};
     std::vector<double> b{5.0, 4.0};
     std::vector<char>   is_free{Bounded, Bounded, Free};
