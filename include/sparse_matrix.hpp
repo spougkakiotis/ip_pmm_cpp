@@ -21,6 +21,7 @@ namespace ippmm{
 
             // Returns y = A*x
             std::vector<Scalar> multiply(const std::vector<Scalar>& x) const;
+            std::vector<Scalar> multiply_tr(const std::vector<Scalar>& x) const;
 
             // Read-only access to the raw CSC arrays 
             const std::vector<Int>&    col_ptr() const {return col_ptr_;}

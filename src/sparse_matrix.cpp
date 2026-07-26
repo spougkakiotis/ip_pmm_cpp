@@ -21,11 +21,10 @@ namespace ippmm{
     }
 
     std::vector<Scalar> SparseMatrix::multiply(const std::vector<Scalar>& x) const{
-
         assert(static_cast<Int>(x.size()) == cols_);
 
         std::vector<Scalar> y(rows_, 0.0);
-
+        // This is a "scatter" routine (since we are in CSC format)
         for (Int j=0; j<cols_; ++j){
             const Scalar xj = x[j];
             for (Int k=col_ptr_[j]; k<col_ptr_[j+1]; ++k){
@@ -33,8 +32,21 @@ namespace ippmm{
             }
         }
         return y;
+    }
 
+    std::vector<Scalar> SparseMatrix::multiply_tr(const std::vector<Scalar>& x) const{
+        assert(static_cast<Int>(x.size()) == rows_);
 
+        std::vector<Scalar> y(cols_, 0.0);
+
+        for (Int j=0; j<cols_; ++j){
+            Scalar sum = 0.0;
+            for (Int k=col_ptr_[j]; k<col_ptr_[j+1]; ++k){
+                sum += values_[k]*x[row_idx_[k]];
+            }
+            y[j] = sum;
+        }
+        return y;
     }
 
 
