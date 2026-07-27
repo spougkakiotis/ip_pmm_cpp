@@ -26,6 +26,11 @@ namespace ippmm{
             // Returns the explicit transpose Aᵀ as a new SparseMatrix (cols x rows, CSC).
             SparseMatrix transpose() const;
 
+            // Matrix 1-norm:   max absolute column sum = max_j Σ_i |A_ij|
+            Scalar norm_1() const;
+            // Matrix ∞-norm:   max absolute row sum    = max_i Σ_j |A_ij|
+            Scalar norm_inf() const;
+
             // Read-only access to the raw CSC arrays 
             const std::vector<Int>&    col_ptr() const {return col_ptr_;}
             const std::vector<Int>&    row_idx() const {return row_idx_;}

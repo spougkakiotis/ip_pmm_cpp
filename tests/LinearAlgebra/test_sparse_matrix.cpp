@@ -57,3 +57,17 @@ TEST_CASE("sparse transpose") {
             CHECK(viaT[i] == doctest::Approx(viaTr[i]));
     }
 }
+
+TEST_CASE("matrix 1-norm and inf-norm") {
+    // A = [ 1  0 -2 ]
+    //     [ 3  4  0 ]   (2x3)
+    // Column abs-sums: |1|+|3|=4, |0|+|4|=4, |-2|+|0|=2  -> 1-norm = 4
+    // Row abs-sums:    |1|+|-2|=3, |3|+|4|=7             -> inf-norm = 7
+    ippmm::SparseMatrix A(2, 3,
+        /*col_ptr=*/ {0, 2, 3, 4},
+        /*row_idx=*/ {0, 1, 1, 0},
+        /*values =*/ {1.0, 3.0, 4.0, -2.0});
+
+    CHECK(A.norm_1()   == doctest::Approx(4.0));
+    CHECK(A.norm_inf() == doctest::Approx(7.0));
+}
