@@ -78,28 +78,28 @@ namespace ippmm{
         return SparseMatrix(cols_, rows_, std::move(tp), std::move(ti), std::move(tx));
     }
 
-    Scalar SparseMatrix::norm_1() const {
-        // CSC: columns are contiguous, so sum |values| within each column directly.
-        Scalar best = 0.0;
-        for (Int j = 0; j < cols_; ++j) {
-            Scalar col_sum = 0.0;
-            for (Int k = col_ptr_[j]; k < col_ptr_[j + 1]; ++k) {
-                col_sum += std::abs(values_[k]);
+    Scalar SparseMatrix::norm(MatNorm type) const {
+        switch (type) {
+            case MatNorm::One: {
+                Scalar best = 0.0;
+                for (Int j = 0; j < cols_; ++j) {
+                    Scalar col_sum = 0.0;
+                    for (Int k = col_ptr_[j]; k < col_ptr_[j + 1]; ++k)
+                        col_sum += std::abs(values_[k]);
+                    best = std::max(best, col_sum);
+                }
+                return best;
             }
-            best = std::max(best, col_sum);
+            case MatNorm::Inf: {
+                std::vector<Scalar> row_sum(rows_, 0.0);
+                for (Int k = 0; k < static_cast<Int>(values_.size()); ++k)
+                    row_sum[row_idx_[k]] += std::abs(values_[k]);
+                Scalar best = 0.0;
+                for (Int i = 0; i < rows_; ++i) best = std::max(best, row_sum[i]);
+                return best;
+            }
         }
-        return best;
-    }
-
-    Scalar SparseMatrix::norm_inf() const {
-        // Rows aren't contiguous in CSC, so scatter |values| into per-row accumulators.
-        std::vector<Scalar> row_sum(rows_, 0.0);
-        for (Int k = 0; k < static_cast<Int>(values_.size()); ++k) {
-            row_sum[row_idx_[k]] += std::abs(values_[k]);
-        }
-        Scalar best = 0.0;
-        for (Int i = 0; i < rows_; ++i) best = std::max(best, row_sum[i]);
-        return best;
+        return 0.0;  // unreachable; silences "control reaches end of non-void" 
     }
 
 

@@ -68,6 +68,6 @@ TEST_CASE("matrix 1-norm and inf-norm") {
         /*row_idx=*/ {0, 1, 1, 0},
         /*values =*/ {1.0, 3.0, 4.0, -2.0});
 
-    CHECK(A.norm_1()   == doctest::Approx(4.0));
-    CHECK(A.norm_inf() == doctest::Approx(7.0));
+    CHECK(A.norm(ippmm::SparseMatrix::MatNorm::One) == doctest::Approx(4.0));
+    CHECK(A.norm(ippmm::SparseMatrix::MatNorm::Inf) == doctest::Approx(7.0));
 }

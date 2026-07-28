@@ -38,3 +38,18 @@ TEST_CASE("SymSparseMatrix rejects lower-triangular storage") {
         SymSparseMatrix(3, {0, 2, 2, 2}, {0, 2}, {1.0, 9.0}),
         std::invalid_argument);
 }
+
+TEST_CASE("SymSparseMatrix norm (symmetric 1 = inf norm)") {
+    // Symmetric Q = [ 2  0  1 ]
+    //               [ 0  4  0 ]
+    //               [ 1  0  3 ]   upper: (0,0)=2,(1,1)=4,(0,2)=1,(2,2)=3
+    // Line sums (row = col): line0 |2|+|1|=3, line1 |4|=4, line2 |1|+|3|=4
+    // norm = max = 4
+    SymSparseMatrix Q(3, {0, 1, 2, 4}, {0, 1, 0, 2}, {2.0, 4.0, 1.0, 3.0});
+    CHECK(Q.norm() == doctest::Approx(4.0));
+
+    // Differential: build the FULL symmetric matrix and check SparseMatrix::norm agrees.
+    SparseMatrix Q_full(3, 3, {0, 2, 3, 5}, {0, 2, 1, 0, 2}, {2.0, 1.0, 4.0, 1.0, 3.0});
+    CHECK(Q.norm() == doctest::Approx(Q_full.norm(SparseMatrix::MatNorm::One)));
+    CHECK(Q.norm() == doctest::Approx(Q_full.norm(SparseMatrix::MatNorm::Inf)));
+}

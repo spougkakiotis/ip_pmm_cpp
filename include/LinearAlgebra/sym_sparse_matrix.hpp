@@ -27,6 +27,10 @@ namespace ippmm {
         // y = A x, treating the stored upper triangle as the full symmetric matrix.
         std::vector<Scalar> multiply(const std::vector<Scalar>& x) const;
 
+        // Symmetric matrix norm: ||Q||_1 == ||Q||_inf (equal by symmetry).
+        // Accounts for the unstored lower triangle via mirroring.
+        Scalar norm() const;
+
         // Raw upper-triangular CSC — what KKTSolver/QDLDL need directly.
         const std::vector<Int>&    col_ptr() const { return upper_.col_ptr(); }
         const std::vector<Int>&    row_idx() const { return upper_.row_idx(); }
