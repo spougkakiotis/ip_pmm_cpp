@@ -67,7 +67,7 @@ namespace ippmm {
         KKTSolver solver(M.size(), M.col_ptr(), M.row_idx());
         const bool ok = solver.factorize(M.values());
         assert(ok && "warm-start M factorization failed");
-        (void)ok;
+        (void)ok;   // avoid compiler warnings
 
         // Solve 1:  M [x; w] = [0; b]   ->  x is the top block.
         std::vector<Scalar> rhs1(n + m, 0.0);
@@ -107,7 +107,7 @@ namespace ippmm {
         const Int n = qp.num_vars();
         auto& x = p.x; auto& z_l = p.z_l; auto& z_u = p.z_u;
 
-        // ---- Stage 1: push near-boundary slacks / multipliers off the wall ----
+        // ---- Push near-boundary slacks / multipliers off the wall ----
         for (Int i = 0; i < n; ++i) {
             if (qp.has_lower(i)) {
                 if (x[i] - qp.lb[i] <= 1e-4) x[i]   = qp.lb[i] + 0.1;
@@ -119,7 +119,7 @@ namespace ippmm {
             }
         }
 
-        // ---- Stage 2a: boxed primal x -> kappa-clamp into the interior band ----
+        // ---- Boxed primal x -> kappa-clamp into the interior band ----
         for (Int i = 0; i < n; ++i) {
             if (qp.has_lower(i) && qp.has_upper(i)) {
                 const Scalar margin = kappa * (qp.ub[i] - qp.lb[i]);
@@ -127,7 +127,7 @@ namespace ippmm {
             }
         }
 
-        // ---- Mehrotra shift over one group (faithful cross-coupled _bar formulas).
+        // ---- Mehrotra shift over one group.
         //      Returns {delta_x_bar, delta_z_bar} for the given group/side. ----
         auto mehrotra = [&](auto active, bool lower) -> std::pair<Scalar, Scalar> {
             Int num = 0;
@@ -159,13 +159,13 @@ namespace ippmm {
         auto lower_active    = [&](Int i){ return qp.has_lower(i); };
         auto upper_active    = [&](Int i){ return qp.has_upper(i); };
 
-        // ---- Stage 2b: compute ALL four magnitudes on the current point ----
+        // ---- Compute ALL four magnitudes on the current point ----
         const Scalar dxl_bar = mehrotra(one_sided_lower, true ).first;   // primal, one-sided
         const Scalar dxu_bar = mehrotra(one_sided_upper, false).first;
         const Scalar dzl_bar = mehrotra(lower_active,    true ).second;  // dual, all-active
         const Scalar dzu_bar = mehrotra(upper_active,    false).second;
 
-        // ---- Stage 2c: apply. Boxed x is NOT primal-shifted (already clamped);
+        // ---- Apply. Boxed x is NOT primal-shifted (already clamped);
         //      boxed z IS dual-shifted (it's in lower_active and upper_active). ----
         for (Int i = 0; i < n; ++i) {
             if (one_sided_lower(i)) x[i]   += dxl_bar;

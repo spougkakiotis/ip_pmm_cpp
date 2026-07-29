@@ -22,5 +22,13 @@ namespace ippmm{
         }
         if (Q.size() != n)
             throw std::invalid_argument("QPProblem: Q must be n x n");
+
+        for (Int i = 0; i < n; ++i) {
+            if (lb[i] > ub[i])
+                throw std::invalid_argument("QPProblem: crossed bounds (lb > ub)");
+            if (has_lower(i) && has_upper(i) && ub[i] - lb[i] < 1e-12)
+                throw std::invalid_argument("QPProblem: fixed variable (ub == lb) not supported; "
+                                            "Pass the model through the parser.");
+        }
     }
 }

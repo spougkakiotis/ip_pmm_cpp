@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "LinearAlgebra/sparse_matrix.hpp"
+#include "qp_problem.hpp"
 
 namespace ippmm{
 
@@ -30,5 +31,7 @@ namespace ippmm{
         int no_primal_update = 0;
         int no_dual_update   = 0;
     };
-
+    // Build the initial SolverState: warm start -> iterate, zeta=x, lambda=y,
+    // rho=delta=8, reg_limit from tol, initial mu from complementarity.
+    SolverState initialize_state(const QPProblem& qp, Scalar tol);
 }
