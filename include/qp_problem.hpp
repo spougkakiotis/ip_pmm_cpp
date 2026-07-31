@@ -25,6 +25,14 @@ namespace ippmm{
         bool has_lower(Int i) const { return lb[i] > -std::numeric_limits<Scalar>::infinity(); }
         bool has_upper(Int i) const { return ub[i] <  std::numeric_limits<Scalar>::infinity(); }
         bool is_free(Int i)   const { return !has_lower(i) && !has_upper(i); }
+        Int num_bounds() const {
+            Int nb = 0;
+            for (Int i = 0; i < num_vars(); ++i) {
+                if (has_lower(i)) ++nb;
+                if (has_upper(i)) ++nb;
+            }
+            return nb;
+        }
 
         void validate() const;
     };
