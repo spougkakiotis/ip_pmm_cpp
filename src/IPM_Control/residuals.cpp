@@ -9,7 +9,7 @@ namespace ippmm{
         assert(static_cast<Int>(x.size()) == qp.num_vars());
 
         std::vector<Scalar> r = qp.A.multiply(x); 
-        axpy(-1.0,qp.b,r);
+        for (std::size_t i = 0; i < r.size(); ++i) r[i] = qp.b[i] - r[i];
         return r;
     }
 

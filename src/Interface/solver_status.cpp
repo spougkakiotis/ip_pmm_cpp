@@ -10,7 +10,6 @@ namespace ippmm {
             case SolveStatus::DualInfeasible:       return "dual infeasible";
             case SolveStatus::NumericalError:       return "numerical error (ill-conditioning)";
             case SolveStatus::InsufficientAccuracy: return "insufficient accuracy";
-            case SolveStatus::Undefined:            return "undefined";
         }
         return "unknown";
     }

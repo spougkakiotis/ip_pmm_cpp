@@ -38,13 +38,13 @@ TEST_CASE("validate rejects a dimension mismatch") {
     CHECK_THROWS_AS(qp.validate(), std::invalid_argument);
 }
 
-TEST_CASE("primal residual r_p = A x - b") {
+TEST_CASE("primal residual r_p = b - A x") {
     QPProblem qp = make_test_qp();
-    // A x = [7, 9];  b = [5, 4];  r_p = [2, 5]
+    // A x = [7, 9];  b = [5, 4];  r_p = b - Ax = [-2, -5]
     const std::vector<double> rp = primal_residual(qp, {1.0, 2.0, 3.0});
     REQUIRE(rp.size() == 2);
-    CHECK(rp[0] == doctest::Approx(2.0));
-    CHECK(rp[1] == doctest::Approx(5.0));
+    CHECK(rp[0] == doctest::Approx(-2.0));   // was +2.0
+    CHECK(rp[1] == doctest::Approx(-5.0));   // was +5.0
 }
 
 TEST_CASE("dual residual r_d = c + Q x - Aᵀ y - z_l + z_u") {

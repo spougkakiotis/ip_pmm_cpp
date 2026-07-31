@@ -12,8 +12,7 @@ namespace ippmm {
         PrimalInfeasible,
         DualInfeasible,
         NumericalError,
-        InsufficientAccuracy,
-        Undefined
+        InsufficientAccuracy
     };
 
     // The solver's return bundle: primal x, multipliers y, and the two bound-dual
@@ -23,7 +22,7 @@ namespace ippmm {
         std::vector<Scalar> y;      // Lagrange multipliers (equality constraints)
         std::vector<Scalar> z_l;    // lower-bound dual multipliers (>= 0)
         std::vector<Scalar> z_u;    // upper-bound dual multipliers (>= 0)
-        SolveStatus status = SolveStatus::Undefined;
+        SolveStatus status = SolveStatus::MaxIterations;
         int iterations = 0;
     };
 

@@ -6,7 +6,7 @@ using namespace ippmm;
 
 TEST_CASE("SolveResult defaults and status strings") {
     SolveResult r;
-    CHECK(r.status == SolveStatus::Undefined);   // safe default
+    CHECK(r.status == SolveStatus::MaxIterations);   // safe default
     CHECK(r.iterations == 0);
     CHECK(r.x.empty());
 
