@@ -8,8 +8,8 @@ namespace ippmm{
                                         const std::vector<Scalar>& x){
         assert(static_cast<Int>(x.size()) == qp.num_vars());
 
-        std::vector<Scalar> r = qp.A.multiply(x); 
-        for (std::size_t i = 0; i < r.size(); ++i) r[i] = qp.b[i] - r[i];
+        std::vector<Scalar> r = qp.b;           // r = b
+        axpy(-1.0, qp.A.multiply(x), r);        // r = b - A x
         return r;
     }
 

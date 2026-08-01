@@ -9,7 +9,6 @@
 #include "KKT/kkt_system.hpp"
 #include "KKT/kkt_solver.hpp"
 #include "LinearAlgebra/vector_ops.hpp"
-#include <cstdio>  
 
 namespace ippmm {
 
@@ -57,11 +56,7 @@ namespace ippmm {
 
             // Accept/keep estimates and shrink regularization based on progress.
             update_pmm_parameters(s, nr_res_p, new_nr_res_p, nr_res_d, new_nr_res_d);
-            // TEMP debug: watch convergence
-            
-            std::printf("iter %3d: p_inf=%.3e d_inf=%.3e mu=%.3e rho=%.3e delta=%.3e x=[%.4f %.4f]\n",
-                        iter, norm(new_nr_res_p, Norm::Inf), norm(new_nr_res_d, Norm::Inf),
-                        s.mu, s.rho, s.delta, s.x[0], s.x[1]);
+           
             // New becomes old for the next iteration's stopping check.
             nr_res_p = std::move(new_nr_res_p);
             nr_res_d = std::move(new_nr_res_d);
