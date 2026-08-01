@@ -113,12 +113,12 @@ ip_pmm_cpp/
 ├── include/
 │   ├── LinearAlgebra/     sparse_matrix, sym_sparse_matrix, vector_ops
 │   ├── KKT/               kkt_system, kkt_solver, newton_backsolve
-│   ├── IPM_Control/       complementarity, ratio_test, regularized_residuals,
-│   │                      predictor_corrector, boundary_control, reg_limit,
-│   │                      warm_start, solver_state, iteration, stopping, update_pmm
+│   ├── IPM_Control/       residuals, complementarity, ratio_test,
+│   │                      regularized_residuals, predictor_corrector,
+│   │                      boundary_control, reg_limit, warm_start,
+│   │                      solver_state, iteration, stopping, update_pmm
 │   ├── Interface/         solver, solver_status
-│   ├── qp_problem.hpp
-│   └── residuals.hpp
+│   └── qp_problem.hpp
 ├── src/                   (implementations, same grouping)
 ├── tests/                 (doctest unit tests, same grouping)
 ├── third_party/           (fetched by setup.sh; gitignored)
